@@ -1,3 +1,5 @@
+"use client";
+
 import MagicButton from "@/components/ui/MagicButton";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { TextGenerateEffect } from "@/components/ui/TextGenerateEffect";
@@ -6,8 +8,11 @@ import { Package } from "lucide-react";
 import React from "react";
 import ProductViewer from "../features/ProductViewer";
 import Link from "next/link";
+import { createXRStore } from "@react-three/xr";
 
 const Hero = () => {
+  const store = createXRStore();
+
   return (
     <div className="pb-20 mt-7">
       <div>
@@ -22,7 +27,7 @@ const Hero = () => {
         <Spotlight className="top-28 left-80 h-[80vh] w-[50vw]" fill="blue " />
       </div>
 
-        {/* Grid-background */}
+      {/* Grid-background */}
       <div className="absolute left-0 top-0 flex min-h-[120vh] w-full items-center justify-center bg-white dark:bg-black-100">
         <div
           className={cn(
@@ -33,7 +38,7 @@ const Hero = () => {
             "opacity-30"
           )}
         />
-        
+
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_5%,black)] dark:bg-black-100"></div>
       </div>
 
@@ -43,16 +48,26 @@ const Hero = () => {
             className="uppercase tracking-widest text-xs text-center text-blue-100
                      max-w-80"
           >
-            
-            <TextGenerateEffect className="text-center text-[40px] md:text-5xl lg:text-6xl" words="Dynamic Web Magic with Next.js & React Three Fiber"/>
+            <TextGenerateEffect
+              className="text-center text-[40px] md:text-5xl lg:text-6xl"
+              words="Dynamic Web Magic with Next.js & React Three Fiber"
+            />
           </h2>
           <ProductViewer />
-          <Link href="/checkout" className="md:mt-7">
-            <MagicButton 
+          <Link href="/checkout" className="md:mt-7 mb-8">
+            <MagicButton
               title="Order Now"
               icon={<Package strokeWidth={1} size={18} />}
               position="right"
             />
+          </Link>
+          <Link href="/vr">
+            <button
+              className="inline-block px-4 py-2 bg-purple-600 cursor-pointer rounded"
+              onClick={() => store.enterVR()}
+            >
+              Show your finger in VR
+            </button>
           </Link>
         </div>
       </div>
