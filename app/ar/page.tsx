@@ -79,36 +79,40 @@
 
 "use client";
 import { Canvas } from "@react-three/fiber";
-import { XR, XRHandModel, XRHitTest, createXRStore, useXR, useXRHandState, useXRHitTest } from "@react-three/xr";
+import { XR, XRHandModel, XRHitTest, createXRStore, useXR, useXRHitTest, useXRInputSourceStateContext } from "@react-three/xr";
 import { useRef } from "react";
 import { Group, Matrix4, Vector3, Quaternion } from "three";
 import RingModel from "@/components/ui/RingModel";
 
-// const store = createXRStore();
-
 const matrixHelper = new Matrix4()
 const hitTestPosition = new Vector3()
 
+// 1. مكون يد اليمين - يجب أن يبدأ بحرف كبير (React Component)
+function RightHand() {
+  const state = useXRInputSourceStateContext("hand"); // بدل useXRHandState
+
+  return (
+    <>
+      <XRHandModel />
+      <XRHitTest
+        space={state.inputSource.targetRaySpace}
+        onResults={(results, getWorldMatrix) => {
+          if (results.length === 0) return;
+          getWorldMatrix(matrixHelper, results[0]);
+          hitTestPosition.setFromMatrixPosition(matrixHelper);
+        }}
+      />
+    </>
+  );
+}
+
+
+// const store = createXRStore();
+
+
 const store = createXRStore({
   hand: {
-    right: () => {
-      const state = useXRHandState()
-      return (
-        <>
-          <XRHandModel />
-          <XRHitTest
-            space={state.inputSource.targetRaySpace}
-            onResults={(results, getWorldMatrix) => {
-              if (results.length === 0) {
-                return
-              }
-              getWorldMatrix(matrixHelper, results[0])
-              hitTestPosition.setFromMatrixPosition(matrixHelper)
-            }}
-          />
-        </>
-      )
-    },
+    right: RightHand
   },
 })
 
@@ -162,11 +166,6 @@ export default function App() {
 
         <XR
           store={store}
-          sessionInit={{
-            requiredFeatures: ["hit-test"],
-            optionalFeatures: ["dom-overlay"],
-            domOverlay: { root: document.body },
-          }}
         >
           <RingOnFinger />
         </XR>
