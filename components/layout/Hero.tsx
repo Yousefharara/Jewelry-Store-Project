@@ -8,10 +8,8 @@ import { Package } from "lucide-react";
 import React from "react";
 import ProductViewer from "../features/ProductViewer";
 import Link from "next/link";
-import { createXRStore } from "@react-three/xr";
 
 const Hero = () => {
-  const store = createXRStore();
 
   return (
     <div className="pb-20 mt-7">
@@ -61,12 +59,11 @@ const Hero = () => {
               position="right"
             />
           </Link>
-          <Link href="/vr">
+          <Link href="/ar">
             <button
               className="inline-block px-4 py-2 bg-purple-600 cursor-pointer rounded"
-              onClick={() => store.enterVR()}
             >
-              Show your finger in VR
+              Show your finger in AR
             </button>
           </Link>
         </div>
