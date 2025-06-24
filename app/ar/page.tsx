@@ -1,27 +1,14 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
-import {
-  XR,
-  createXRStore,
-  useXR,
-  useXRHitTest,
-} from "@react-three/xr";
+import { XR, createXRStore, useXR, useXRHitTest } from "@react-three/xr";
 import { useRef } from "react";
 import { Matrix4, Quaternion, Vector3, Group } from "three";
 import RingModel from "@/components/ui/RingModel";
 
-const store =
-  typeof window !== "undefined"
-    ? createXRStore({
-        hitTest: true,
-        offerSession: "immersive-ar",
-        customSessionInit: {
-          requiredFeatures: ["hand-tracking"],
-          optionalFeatures: ["dom-overlay"],
-          domOverlay: { root: document.body },
-        },
-      })
-    : null;
+const store = createXRStore({
+  hitTest: true,
+  offerSession: "immersive-ar",
+});
 
 function RingOnFinger() {
   const ref = useRef<Group>(null);
@@ -71,28 +58,24 @@ function RingOnFinger() {
 const App = () => {
   return (
     <>
-      {store && (
-        <button
-          onClick={() => store.enterAR()}
-          style={{
-            position: "absolute",
-            zIndex: 10,
-            top: 20,
-            left: 20,
-            padding: "10px 20px",
-            fontSize: "16px",
-          }}
-        >
-          Enter AR
-        </button>
-      )}
+      <button
+        onClick={() => store.enterAR()}
+        style={{
+          position: "absolute",
+          zIndex: 10,
+          top: 20,
+          left: 20,
+          padding: "10px 20px",
+          fontSize: "16px",
+        }}
+      >
+        Enter AR
+      </button>
 
       <Canvas style={{ width: "100vw", height: "100vh" }}>
-        {store && (
-          <XR store={store}>
-            <RingOnFinger />
-          </XR>
-        )}
+        <XR store={store}>
+          <RingOnFinger />
+        </XR>
       </Canvas>
     </>
   );
