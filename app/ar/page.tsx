@@ -60,14 +60,7 @@ const App = () => {
     <>
       <button
         onClick={() => store.enterAR()}
-        style={{
-          position: "absolute",
-          zIndex: 10,
-          top: 20,
-          left: 20,
-          padding: "10px 20px",
-          fontSize: "16px",
-        }}
+        className="bg-rose-500 rounded-md text-[16px] px-6 py-2 cursor-pointer top-10 left-10 z-10 absolute"
       >
         Enter AR
       </button>
