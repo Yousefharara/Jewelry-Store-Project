@@ -1,4 +1,3 @@
-// components/hand/useHandPosition.ts
 "use client";
 import { useState, useCallback } from "react";
 import HandTracker from "./HandTracker";

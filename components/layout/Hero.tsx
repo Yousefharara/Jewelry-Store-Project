@@ -61,23 +61,14 @@ const Hero = () => {
               position="right"
             />
           </Link>
-          {/* <Link href="/ar">
-            <button
-              className="inline-block px-4 py-2 bg-purple-600 cursor-pointer rounded"
-            >
-              Show your finger in AR
-            </button>
-          </Link> */}
           <button
             className="inline-block px-4 py-2 bg-purple-600 cursor-pointer rounded"
             onClick={() => {
               router.push("/ar")
-              // setShowHandTracking(true)
             }}
           >
             Show your finger in AR
           </button>
-          {/* {showHandTracking && <HandTracker onResults={handleLandmarks} />} */}
         </div>
       </div>
     </div>
