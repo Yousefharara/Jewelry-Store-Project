@@ -124,7 +124,6 @@
 //   );
 // }
 
-
 // // components/hand/HandTracker.tsx
 // "use client";
 // import { useEffect, useRef } from "react";
@@ -193,7 +192,6 @@
 //   );
 // }
 
-
 // components/hand/HandTracker.tsx
 "use client";
 
@@ -230,10 +228,7 @@ export default function HandTracker({ onResults }: Props) {
     // ✅ فقط مرة وحدة: استقبل النتائج واطبعها وأرسلها
     hands.onResults((results) => {
       console.log("MediaPipe results:", results); // 👈 للتأكد فقط
-      if (
-        results.multiHandLandmarks &&
-        results.multiHandLandmarks.length > 0
-      ) {
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
         onResults(results.multiHandLandmarks[0]); // 👈 أول يد فقط
       } else {
         onResults([]); // 👈 فارغ عند عدم وجود يد
@@ -246,6 +241,7 @@ export default function HandTracker({ onResults }: Props) {
       },
       width: 640,
       height: 480,
+      facingMode: "environment", // ✅ هذه هي التي تحدد الكاميرا الخلفية
     });
 
     camera.start();
@@ -267,5 +263,3 @@ export default function HandTracker({ onResults }: Props) {
     </div>
   );
 }
-
-
