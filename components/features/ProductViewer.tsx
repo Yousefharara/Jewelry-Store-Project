@@ -1,8 +1,7 @@
 "use client";
 
-import { Canvas} from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
-
 
 import MaterialSelector, {
   MaterialOptions,
@@ -11,7 +10,6 @@ import MaterialSelector, {
 import ProductInfo from "./ProductInfo";
 import { useProduct } from "@/context/ProductContext";
 import RingModel from "../ui/RingModel";
-
 
 export default function ProductViewer() {
   const { selectedMetal, selectedGem, setSelectedMetal, setSelectedGem } =
