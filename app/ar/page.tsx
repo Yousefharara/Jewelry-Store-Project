@@ -29,7 +29,7 @@ function Ring({ position }: { position: { x: number; y: number; z: number } }) {
   });
 
   return (
-    <group ref={ref} scale={0.05}>
+    <group ref={ref} scale={0.02}>
       <RingModel metal="platinum" gem="diamond" animate={false} />
     </group>
   );
