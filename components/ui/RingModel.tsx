@@ -4,7 +4,6 @@ import { GemOptions, MaterialOptions } from "../features/MaterialSelector";
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 
-
 const metalMaterials: Record<MaterialOptions, THREE.Material> = {
   gold: new THREE.MeshPhysicalMaterial({
     color: "#FFD700",
@@ -28,7 +27,6 @@ const metalMaterials: Record<MaterialOptions, THREE.Material> = {
     reflectivity: 1,
   }),
 };
-
 
 const gemMaterials: Record<GemOptions, THREE.Material> = {
   diamond: new THREE.MeshPhysicalMaterial({
@@ -54,13 +52,13 @@ const gemMaterials: Record<GemOptions, THREE.Material> = {
   }),
 };
 
-
 interface RingModelProps {
   metal: MaterialOptions;
   gem: GemOptions;
+  animate?: boolean;
 }
 
-const RingModel = ({ metal, gem }: RingModelProps) => {
+const RingModel = ({ metal, gem, animate = true }: RingModelProps) => {
   const { scene } = useGLTF("/models/the_crowned_ring.glb");
   const ref = useRef<THREE.Group>(null);
 
@@ -84,15 +82,17 @@ const RingModel = ({ metal, gem }: RingModelProps) => {
   let frame = 0;
   useFrame(() => {
     if (!ref.current) return;
-    if (frame < 120) {
-      ref.current.rotation.y += 0.05;
-      const scale = THREE.MathUtils.lerp(0.1, 1, frame / 120);
-      ref.current.scale.set(scale, scale, scale);
-      frame++;
+    if (animate) {
+      if (frame < 120) {
+        ref.current.rotation.y += 0.05;
+        const scale = THREE.MathUtils.lerp(0.1, 1, frame / 120);
+        ref.current.scale.set(scale, scale, scale);
+        frame++;
+      }
     }
   });
 
   return <primitive ref={ref} object={scene} />;
 };
 
-export default RingModel
+export default RingModel;

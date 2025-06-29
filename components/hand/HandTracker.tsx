@@ -1,85 +1,80 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { NormalizedLandmarkList } from "@mediapipe/hands";
-import HandsModule from "@mediapipe/hands";
-import CameraModule from "@mediapipe/camera_utils";
-
-const Hands = HandsModule.Hands;
-const Camera = CameraModule.Camera;
+import { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
+import type { NormalizedLandmark } from "@mediapipe/tasks-vision";
 
 type Props = {
-  onResults: (landmarks: NormalizedLandmarkList) => void;
-};
-
-type MediaPipeCamera = {
-  start: () => Promise<void>;
-  stop: () => void;
+  onResults: (landmarks: NormalizedLandmark[]) => void;
 };
 
 export default function HandTracker({ onResults }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    let camera: MediaPipeCamera | null = null;
+    let landmarker: HandLandmarker | null = null;
+    let stream: MediaStream | null = null;
+    let animationId: number;
 
     const init = async () => {
       if (!videoRef.current) return;
+      if (videoRef.current.srcObject) {
+        console.log("Camera already initialized, skipping re-init");
+        return;
+      }
+      console.log("Hand tracking initialized successfully!");
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm"
+      );
+
+      landmarker = await HandLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath:
+            "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+          delegate: "GPU",
+        },
+        runningMode: "VIDEO",
+        numHands: 1,
       });
 
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment", width: 320, height: 240 },
+      });
       videoRef.current.srcObject = stream;
       await videoRef.current.play();
 
-      const hands = new Hands({
-        locateFile: (file) =>
-          `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
-      });
+      let lastTime = -1;
 
-      hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.8,
-        minTrackingConfidence: 0.8,
-      });
+      const predict = async () => {
+        if (!videoRef.current || !landmarker) return;
+        const now = performance.now();
 
-      hands.onResults((results) => {
-        console.log("MediaPipe results:", results);
-        if (results.multiHandLandmarks.length > 0) {
-          onResults(results.multiHandLandmarks[0]);
-        }
-      });
+        if (videoRef.current.currentTime !== lastTime) {
+          lastTime = videoRef.current.currentTime;
 
-      camera = new Camera(videoRef.current!, {
-        onFrame: async () => {
-          if (
-            videoRef.current &&
-            videoRef.current.videoWidth > 0 &&
-            videoRef.current.videoHeight > 0
-          ) {
-            await hands.send({ image: videoRef.current! });
+          const result = landmarker.detectForVideo(videoRef.current, now);
+
+          if (result.landmarks && result.landmarks.length > 0) {
+            const ringTip = result.landmarks[0][16];
+            console.log("Ring tip landmark:", ringTip);
+            onResults(result.landmarks[0]);
           }
-        },
-        width: 640,
-        height: 480,
-        facingMode: "environment",
-      });
+        }
 
-      camera.start();
+        animationId = requestAnimationFrame(predict);
+      };
+
+      predict();
     };
 
     init();
 
     return () => {
-      if (camera) camera.stop();
-      if (videoRef.current?.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach((track) => track.stop());
-      }
+      cancelAnimationFrame(animationId);
+      if (stream) stream.getTracks().forEach((track) => track.stop());
     };
-  }, [onResults]);
+  }, []);
 
   return (
     <div className="flex justify-center mt-4">

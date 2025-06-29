@@ -1,8 +1,8 @@
 "use client";
 import { useState, useCallback } from "react";
 import HandTracker from "./HandTracker";
-import { NormalizedLandmarkList } from "@mediapipe/hands";
 
+import { NormalizedLandmarkList } from "@mediapipe/hands";
 export default function useHandPosition() {
   const [position, setPosition] = useState<{
     x: number;
@@ -11,7 +11,7 @@ export default function useHandPosition() {
   } | null>(null);
 
   const handleLandmarks = useCallback((landmarks: NormalizedLandmarkList) => {
-    const ringTip = landmarks[16]; // إصبع البنصر
+    const ringTip = landmarks[16];
     setPosition({ x: ringTip.x, y: ringTip.y, z: ringTip.z });
   }, []);
 
