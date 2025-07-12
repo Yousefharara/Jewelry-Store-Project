@@ -5,19 +5,23 @@ import type { NormalizedLandmarkList } from "@mediapipe/hands";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import RingModel from "@/components/ui/RingModel";
-import { Group, Vector3 } from "three";
+import { Group, Vector3, Quaternion } from "three";
 
-function Ring({ position }: { position: { x: number; y: number; z: number } }) {
+function Ring({
+  position,
+  direction,
+}: {
+  position: { x: number; y: number; z: number };
+  direction: { x: number; y: number; z: number };
+}) {
   const ref = useRef<Group | null>(null);
   const { camera } = useThree();
-
   const smoothedPos = useRef(new Vector3());
 
   useFrame(() => {
     if (!ref.current) return;
 
     const ndcZ = position.z * -1.5;
-
     const ndcX = position.x * 2 - 1;
     const ndcY = -position.y * 2 + 1;
 
@@ -26,6 +30,16 @@ function Ring({ position }: { position: { x: number; y: number; z: number } }) {
     smoothedPos.current.lerp(targetPos, 0.2);
 
     ref.current.position.copy(smoothedPos.current);
+
+    const dir = new Vector3(
+      direction.x,
+      -direction.y,
+      -direction.z
+    ).normalize();
+    const up = new Vector3(0, 1, 0); 
+
+    const quaternion = new Quaternion().setFromUnitVectors(up, dir);
+    ref.current.quaternion.slerp(quaternion, 0.3);
   });
 
   return (
@@ -36,16 +50,31 @@ function Ring({ position }: { position: { x: number; y: number; z: number } }) {
 }
 
 export default function ARPage() {
+
   const [ringPos, setRingPos] = useState<{
     x: number;
     y: number;
     z: number;
+    direction: { x: number; y: number; z: number };
   } | null>(null);
 
   const handleLandmarks = (landmarks: NormalizedLandmarkList) => {
     if (landmarks.length > 16) {
-      const { x, y, z } = landmarks[16];
-      setRingPos({ x, y, z });
+      const tip = landmarks[16];
+      const base = landmarks[14];
+
+      const direction = {
+        x: tip.x - base.x,
+        y: tip.y - base.y,
+        z: tip.z - base.z,
+      };
+
+      setRingPos({
+        x: tip.x,
+        y: tip.y,
+        z: tip.z,
+        direction,
+      });
     }
   };
 
@@ -63,7 +92,7 @@ export default function ARPage() {
         <PerspectiveCamera makeDefault position={[0, 0, 2]} />
         <ambientLight intensity={0.6} />
         <directionalLight position={[2, 2, 2]} intensity={1} />
-        {ringPos && <Ring position={ringPos} />}
+        {ringPos && <Ring position={ringPos} direction={ringPos.direction} />}
       </Canvas>
     </div>
   );
